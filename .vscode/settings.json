@@ -8,6 +8,7 @@
     "editor.defaultFormatter": "denoland.vscode-deno"
   },
   "cSpell.words": [
+    "snaplet",
     "supabase"
   ]
 }

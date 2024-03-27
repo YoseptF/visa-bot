@@ -1,7 +1,5 @@
-import { faker } from '@faker-js/faker/locale/es_MX'
-import mx from "./jsons/mx_states.json"
-import billboards from "./jsons/billboards_low.json"
-import { createSeedClient } from '@snaplet/seed';
+import { faker } from "@faker-js/faker/locale/es_MX";
+import { createSeedClient } from "@snaplet/seed";
 // import { copycat } from "@snaplet/copycat"
 // import inside from 'point-in-polygon'
 
@@ -26,11 +24,11 @@ import { createSeedClient } from '@snaplet/seed';
 // * For a more detailed reference: https://docs.snaplet.dev/core-concepts/seed
 
 const snaplet = await createSeedClient({
-  dryRun: process.env.DRY !== '0',
+  dryRun: process.env.DRY !== "0",
 });
 
 // Clears all existing data in the database, but keep the structure
-await snaplet.$resetDatabase()
+await snaplet.$resetDatabase();
 
 // auth users
 await snaplet.users([{
@@ -39,7 +37,8 @@ await snaplet.users([{
   aud: "authenticated",
   role: "authenticated",
   email: "yosept.flores@gmail.com",
-  encryptedPassword: "$2a$10$NnBBS1xoBsI20zhGSZdhYuJuq4jSp1It7E7KdVrnlG2C.85ZLxYy6",
+  encryptedPassword:
+    "$2a$10$NnBBS1xoBsI20zhGSZdhYuJuq4jSp1It7E7KdVrnlG2C.85ZLxYy6",
   emailConfirmedAt: "2023-12-31 00:42:35.097475+00",
   invitedAt: null,
   confirmationToken: "",
@@ -67,115 +66,62 @@ await snaplet.users([{
   isSsoUser: false,
   deletedAt: null,
   phoneChangeSentAt: null,
-}])
+}]);
+
+const now = new Date().toISOString();
 
 const emptyNode = {
   deletedAt: null,
-  updatedAt: null,
-}
+  updatedAt: now,
+};
 
-const statesAndIds = mx.features.map((f) => ({
-  id: f.properties.id,
-  name: f.properties.state_name,
-  ...emptyNode
-})
-)
+await snaplet.customers((x) =>
+  x(3, () => {
+    const name = faker.person.fullName();
+    const [firstName, lastName] = name.split(" ");
+    return {
+      email: faker.internet.email({ firstName, lastName }),
+      name,
+      ...emptyNode,
+    };
+  })
+);
 
-const billboardsAndIds = billboards.features.map((f) => ({
-  id: f.properties.id,
-  ...emptyNode
-}))
+await snaplet.applicants((x) =>
+  x(50, () => {
+    const name = faker.person.fullName();
+    const [firstName, lastName] = name.split(" ");
+    return {
+      email: faker.internet.email({ firstName, lastName }),
+      name,
+      ...emptyNode,
+    };
+  }), { connect: true });
 
-// const generateRandomCoordinate = () => {
-//   let point = { lat: 0, lng: 0 };
-//   let isInside = false;
+// await snaplet.maps([
+//   { name: "billboards", deletedAt: null, updatedAt: null },
+//   { name: "mexican_states", deletedAt: null, updatedAt: null,  },
+// ], { connect: true })
 
-//   while (!isInside) {
-//     // Generate a random latitude and longitude
-//     const lat = faker.location.latitude({ precision: 13 })
-//     const lng = faker.location.longitude({ precision: 13 })
+// await snaplet.billboards(x => billboardsAndIds.map((bai) => ({
+//   ...bai,
+//   address: faker.location.streetAddress(),
+//   postCode: faker.location.zipCode(),
+//   name: faker.location.street(),
+//   Map: ({ store }) => {
+//     const map = store.Map.find(x => x.name === "billboards")
+//     if (!map) throw new Error("Map not found")
+//     return map
+//   },
+// })), { connect: true })
 
-//     // Check if the point is inside any of the polygons
-//     for (const polygon of allMexicanDots) {
-//       if (inside([lng, lat], polygon)) {
-//         isInside = true;
-//         point = { lat, lng };
-//         break;
-//       }
-//     }
+// await snaplet.places(statesAndIds.map((sai) => ({
+//   ...sai,
+//   Map: ({ store }) => {
+//     const map = store.Map.find(x => x.name === "mexican_states")
+//     if (!map) throw new Error("Map not found")
+//     return map
 //   }
+// })), { connect: true })
 
-//   return point;
-// }
-
-// In case we need to regenerate the billboards
-// const BILLBOARD_COUNT = 1200;
-
-// const fakedBillboards = Array(BILLBOARD_COUNT).fill(0).map((_, i) => {
-//   process.stdout.write(`Generating fake billboards: 0 / ${BILLBOARD_COUNT}`);
-
-//   // write in the console the progress, each line deletes the previous one
-//   // so that the console does not get saturated
-//   process.stdout.clearLine(0);
-//   process.stdout.cursorTo(0);
-//   process.stdout.write(`Generating fake billboards: ${i} / ${BILLBOARD_COUNT}`);
-
-//   const { lat, lng } = generateRandomCoordinate()
-
-//   return {
-//     "type": "Feature",
-//     "properties": {
-//       "id": copycat.uuid(lat + lng),
-//     },
-//     "geometry": {
-//       "coordinates": [
-//         lng,
-//         lat
-//       ],
-//       "type": "Point"
-//     }
-//   }
-// })
-await snaplet.customers([{
-  email: "yosept.flores@mail.com",
-  name: "Joseph Flores",
-  ...emptyNode,
-}])
-
-await snaplet.customers(x => x(3, () => {
-  const name = faker.person.fullName()
-  return {
-    email: faker.internet.email({ firstName: name.split(' ')[0], lastName: name.split(' ')[1] }),
-    name,
-    ...emptyNode,
-  }
-}
-))
-
-await snaplet.maps([
-  { name: "billboards", deletedAt: null, updatedAt: null },
-  { name: "mexican_states", deletedAt: null, updatedAt: null,  },
-], { connect: true })
-
-await snaplet.billboards(x => billboardsAndIds.map((bai) => ({
-  ...bai,
-  address: faker.location.streetAddress(),
-  postCode: faker.location.zipCode(),
-  name: faker.location.street(),
-  Map: ({ store }) => {
-    const map = store.Map.find(x => x.name === "billboards")
-    if (!map) throw new Error("Map not found")
-    return map
-  },
-})), { connect: true })
-
-await snaplet.places(statesAndIds.map((sai) => ({
-  ...sai,
-  Map: ({ store }) => {
-    const map = store.Map.find(x => x.name === "mexican_states")
-    if (!map) throw new Error("Map not found")
-    return map
-  }
-})), { connect: true })
-
-await snaplet.billboardInPlaces(x => x(15, () => emptyNode), { connect: true })
+await snaplet.applicantOnCustomers(x => x(15, () => emptyNode), { connect: true })
