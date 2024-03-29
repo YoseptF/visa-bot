@@ -41,3 +41,8 @@ model ApplicantOnCustomer {
   applicant   Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
   customer    Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade) 
 }
+
+model ServerSettings {
+  id        String   @id @default(cuid())
+  token     String
+}
