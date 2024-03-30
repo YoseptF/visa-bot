@@ -1,7 +1,7 @@
 import { executeQuery } from '../queryClient'
 
 const baseUrl = 'https://api.improvmx.com/v3'
-const API_KEY = ''
+const API_KEY = process.env.IMPROV_API_KEY
 
 interface ImprovLog {
   created: string,

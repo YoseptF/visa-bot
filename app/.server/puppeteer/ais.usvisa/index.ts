@@ -21,6 +21,8 @@ const page = await browser.newPage();
 // go to visa site
 await page.goto("https://ais.usvisa-info.com/en-mx/niv/schedule/56737921/courier");
 
+await page.waitForNetworkIdle({ idleTime: 1000 });
+
 // get button with text ok
 const okButton = await page.waitForSelector('xpath/.//button[text()="OK"]');
 
