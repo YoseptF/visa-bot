@@ -22,8 +22,6 @@ const page = await browser.newPage();
 // go to visa site
 await page.goto("https://ceac.state.gov/genniv/");
 
-await page.waitForNetworkIdle({ idleTime: 1000 });
-
 const locationSelect = await page.waitForSelector('select#ctl00_SiteContentPlaceHolder_ucLocation_ddlLocation');
 
 if (!locationSelect) throw new Error("Location select not found");
@@ -66,7 +64,7 @@ const getImageBase64 = (imageId: string) => {
 
 const base64Image = await page.evaluate(getImageBase64, captchaImage);
 
-console.log('base64Image', base64Image);
+// console.log('base64Image', base64Image);
 
 if (!base64Image) throw new Error('Failed to get base64 image');
 
@@ -83,21 +81,19 @@ interface CapsolverResponse {
 
 const createTask = await executeQuery({
   mutationFn: async (body: string) => {
-    const task = await fetch('https://api.capsolver.com/createTask', {
+    const formData = new FormData();
+    formData.append('method', 'base64');
+    formData.append('key', process.env.CAPTCHAAI_CLIENT_KEY || '');
+    formData.append('body', body);
+    const task = await fetch('https://ocr.captchaai.com/in.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        clientKey: process.env.CAPSOLVER_CLIENT_KEY,
-        task: {
-          type: 'ImageToTextTask',
-          websiteURL: 'https://ceac.state.gov/genniv/',
-          body,
-          case: false
-        }
-      }),
+      body: formData,
     });
+
+    console.log('task', task);
 
     const taskData = await task.json() as CapsolverResponse;
     return taskData;
