@@ -1,6 +1,8 @@
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
-import { executeQuery } from '~/.server/queryClient';
+import firstPage from './firstPage';
 import puppeteer from "puppeteer-extra";
+import secondPage from './secondPage';
+import { waitForSelector } from '../utils';
 
 puppeteer.use(StealthPlugin())
 
@@ -9,7 +11,7 @@ const TIMEOUT = 150000
 // open new browser
 const browser = await puppeteer.launch({
   headless: false,
-  slowMo: 50,
+  // slowMo: 50,
   // window size
   defaultViewport: {
     width: 700,
@@ -22,100 +24,68 @@ const page = await browser.newPage();
 // go to visa site
 await page.goto("https://ceac.state.gov/genniv/");
 
-const locationSelect = await page.waitForSelector('select#ctl00_SiteContentPlaceHolder_ucLocation_ddlLocation');
+await firstPage(page);
 
-if (!locationSelect) throw new Error("Location select not found");
+await secondPage(page);
 
-locationSelect.select('MEX');
+const appIdSpan = await waitForSelector('span#ctl00_lblAppID', page);
 
-await new Promise((resolve) => setTimeout(resolve, 1000));
+const surnames = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME', page);
 
-const captchaImage = 'c_default_ctl00_sitecontentplaceholder_uclocation_identifycaptcha1_defaultcaptcha_CaptchaImage'
+await surnames.type('surname');
 
-const getImageBase64 = (imageId: string) => {
-  const imageElement = document.getElementById(imageId);
+const givenNames = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_GIVEN_NAME', page);
 
-  if (!imageElement) {
-    console.error(`Image with ID ${imageId} not found`);
-    return null;
-  }
+await givenNames.type('name');
 
-  const canvas = document.createElement('canvas');
-  canvas.width = imageElement.width;
-  canvas.height = imageElement.height;
+const noFullName = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_FULL_NAME_NATIVE_NA', page);
 
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    console.error("Failed to get canvas context");
-    return null;
-  }
+await noFullName.click();
 
-  ctx.drawImage(imageElement, 0, 0);
+const noOtherNames = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_1', page);
 
-  try {
-    // You can specify image quality as a parameter if needed
-    const dataURL = canvas.toDataURL('image/jpeg');
-    return dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, ''); // Remove the initial data:image part
-  } catch (error) {
-    console.error("Error generating Base64:", error);
-    return null;
-  }
-}
+await noOtherNames.click();
 
-const base64Image = await page.evaluate(getImageBase64, captchaImage);
+const noTelecode = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_1', page);
 
-// console.log('base64Image', base64Image);
+await noTelecode.click();
 
-if (!base64Image) throw new Error('Failed to get base64 image');
+const sexSelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_GENDER', page);
 
-interface CapsolverResponse {
-  "errorId": number,
-  "errorCode": string,
-  "errorDescription": string,
-  "status": string,
-  "solution": {
-    "text": string
-  },
-  "taskId": string
-}
+await sexSelect.select('M');
 
-const createTask = await executeQuery({
-  mutationFn: async (body: string) => {
-    const formData = new FormData();
-    formData.append('method', 'base64');
-    formData.append('key', process.env.CAPTCHAAI_CLIENT_KEY || '');
-    formData.append('body', body);
-    const task = await fetch('https://ocr.captchaai.com/in.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: formData,
-    });
+const maritakStatusSelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_MARITAL_STATUS', page);
 
-    console.log('task', task);
+await maritakStatusSelect.select('S');
 
-    const taskData = await task.json() as CapsolverResponse;
-    return taskData;
-  },
-}, base64Image);
+const birthDaySelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlDOBDay', page);
 
-console.log('createTask', createTask);
+await birthDaySelect.select('01');
 
-const { solution: { text } } = createTask;
+const birthMonthSelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlDOBMonth', page);
 
-const captchaInput = await page.waitForSelector('input#ctl00_SiteContentPlaceHolder_ucLocation_IdentifyCaptcha1_txtCodeTextBox');
+await birthMonthSelect.select('JAN');
 
-if (!captchaInput) throw new Error("Captcha input not found");
+const birthYearInput = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxDOBYear', page);
 
-await captchaInput.type(text);
+await birthYearInput.type('1990', { delay: 100 });
 
-const submitButton = await page.waitForSelector('.category.create a');
+const cityInput = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_CITY', page);
 
-if (!submitButton) throw new Error("Submit button not found");
+await cityInput.type('city');
 
-await new Promise((resolve) => setTimeout(resolve, 1000));
+const stateInput = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE', page);
 
-await submitButton.click();
+await stateInput.type('state');
+
+const countrySelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_POB_CNTRY', page);
+
+await countrySelect.select('DF');
+
+await page.waitForNetworkIdle()
+
+const nextButton = await waitForSelector('input#ctl00_SiteContentPlaceHolder_UpdateButton3', page);
+
+await nextButton.click();
 
 await new Promise((resolve) => setTimeout(resolve, TIMEOUT));

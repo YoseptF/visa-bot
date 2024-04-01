@@ -1,5 +1,6 @@
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import puppeteer from "puppeteer-extra";
+import { waitForSelector } from '../utils';
 
 puppeteer.use(StealthPlugin())
 
@@ -21,34 +22,18 @@ const page = await browser.newPage();
 // go to visa site
 await page.goto("https://ais.usvisa-info.com/en-mx/niv/schedule/56737921/courier");
 
-await page.waitForNetworkIdle({ idleTime: 1000 });
+await page.waitForNetworkIdle({ idleTime: 300 });
 
 // get button with text ok
-const okButton = await page.waitForSelector('xpath/.//button[text()="OK"]');
-
-if (!okButton) throw new Error("Ok Button not found");
+const okButton = await waitForSelector('xpath/.//button[text()="OK"]', page);
 
 okButton.click();
 
-const emailInput = await page.waitForSelector('input#user_email');
-const passwordInput = await page.waitForSelector('input#user_password');
-const signInButton = await page.waitForSelector('input[value="Sign In"]');
-const policyCheckBox = await page.waitForSelector('input#policy_confirmed');
+const emailInput = await waitForSelector('input#user_email', page);
+const passwordInput = await waitForSelector('input#user_password', page);
+const signInButton = await waitForSelector('input[value="Sign In"]', page);
+const policyCheckBox = await waitForSelector('input#policy_confirmed', page);
 
-if (
-  !emailInput
-  || !passwordInput
-  || !signInButton
-  || !policyCheckBox
-) {
-  console.debug({
-    emailInput: !!emailInput,
-    passwordInput: !!passwordInput,
-    signInButton: !!signInButton,
-    policyCheckBox: !!policyCheckBox,
-  })
-  throw new Error("Inputs not found");
-}
 
 await emailInput.type("testo@yosept.me");
 await passwordInput.type("1_Password");

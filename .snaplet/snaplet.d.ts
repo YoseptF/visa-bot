@@ -363,7 +363,7 @@ interface Database {
   vault: Schema_vault;
 }
 interface Extension {
-  extensions: "uuid-ossp" | "pgcrypto" | "pgjwt" | "pg_stat_statements" | "pg_net";
+  extensions: "pg_net" | "pg_stat_statements" | "pgcrypto" | "pgjwt" | "uuid-ossp";
   graphql: "pg_graphql";
   pgsodium: "pgsodium";
   vault: "supabase_vault";

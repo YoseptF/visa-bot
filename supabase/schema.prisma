@@ -45,4 +45,5 @@ model ApplicantOnCustomer {
 model ServerSettings {
   id        String   @id @default(cuid())
   token     String
+  ceacAppId String?
 }

@@ -1,4 +1,4 @@
-import { executeQuery } from '../queryClient'
+import { executeQuery } from '../../queryClient'
 
 const baseUrl = 'https://api.improvmx.com/v3'
 const API_KEY = process.env.IMPROV_API_KEY
