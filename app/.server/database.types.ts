@@ -130,6 +130,24 @@ export type Database = {
         }
         Relationships: []
       }
+      ServerSettings: {
+        Row: {
+          aisToken: string
+          ceacAppId: string | null
+          id: string
+        }
+        Insert: {
+          aisToken: string
+          ceacAppId?: string | null
+          id: string
+        }
+        Update: {
+          aisToken?: string
+          ceacAppId?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

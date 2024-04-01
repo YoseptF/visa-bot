@@ -51,6 +51,14 @@ type Override = {
       ApplicantOnCustomer?: string;
     };
   }
+  ServerSettings?: {
+    name?: string;
+    fields?: {
+      id?: string;
+      aisToken?: string;
+      ceacAppId?: string;
+    };
+  }
   _http_response?: {
     name?: string;
     fields?: {
@@ -443,6 +451,9 @@ export interface Fingerprint {
     updatedAt?: FingerprintDateField;
     deletedAt?: FingerprintDateField;
     applicantOnCustomers?: FingerprintRelationField;
+  }
+  serverSettings?: {
+
   }
   HttpResponses?: {
     id?: FingerprintNumberField;

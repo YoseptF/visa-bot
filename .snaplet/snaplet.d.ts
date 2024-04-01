@@ -33,6 +33,11 @@ interface Table_public_customer {
   updatedAt: string;
   deletedAt: string | null;
 }
+interface Table_public_server_settings {
+  id: string;
+  aisToken: string;
+  ceacAppId: string | null;
+}
 interface Table_net_http_response {
   id: number | null;
   status_code: number | null;
@@ -326,6 +331,7 @@ interface Schema_public {
   Applicant: Table_public_applicant;
   ApplicantOnCustomer: Table_public_applicant_on_customer;
   Customer: Table_public_customer;
+  ServerSettings: Table_public_server_settings;
 }
 interface Schema_realtime {
 

@@ -15,7 +15,7 @@
     "status": "bun supabase status",
     "db/seed/dry": "bunx tsx seed.mts",
     "db/seed": "DRY=0 bunx tsx seed.mts",
-    "db/reset": "bun supabase db reset && bun db:seed",
+    "db/reset": "bun supabase db reset && bun db/seed",
     "db/pull": "dotenv -- cross-var bun supabase db pull -p %SUPABASE_DB_PASSWORD%",
     "db/push": "dotenv -- cross-var bun supabase db push -p %SUPABASE_DB_PASSWORD%",
     "types/generate/server": "bunx snaplet generate && bunx tsx ./scripts/createTsFromDB.ts",
