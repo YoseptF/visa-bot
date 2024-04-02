@@ -37,6 +37,7 @@ interface Table_public_server_settings {
   id: string;
   aisToken: string | null;
   ceacAppId: string | null;
+  confirmed: boolean | null;
 }
 interface Table_net_http_response {
   id: number | null;

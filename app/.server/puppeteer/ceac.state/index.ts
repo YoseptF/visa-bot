@@ -26,7 +26,7 @@ import workEducation3 from './workEducation3';
 
 puppeteer.use(StealthPlugin())
 
-const TIMEOUT = 150000
+const TIMEOUT = 5000
 
 // open new browser
 const browser = await puppeteer.launch({
@@ -89,5 +89,7 @@ const steps = [
 for (const step of steps) {
   await step(page)
 }
+
+await supabase.from('ServerSettings').update({ confirmed: true }).eq('id', '1')
 
 await new Promise((resolve) => setTimeout(resolve, TIMEOUT));

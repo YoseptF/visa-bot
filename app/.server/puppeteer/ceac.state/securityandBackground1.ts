@@ -1,6 +1,6 @@
-import { checkIfUnchecked, waitForSelector } from "../utils";
-
 import { Page } from "puppeteer";
+import { checkNoOnEverything } from "./utils";
+import { waitForSelector } from "../utils";
 
 const securityandBackground1 = async (page: Page) => {
   await page.waitForNetworkIdle({ idleTime: 300 });

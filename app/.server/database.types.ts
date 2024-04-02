@@ -134,16 +134,19 @@ export type Database = {
         Row: {
           aisToken: string | null
           ceacAppId: string | null
+          confirmed: boolean | null
           id: string
         }
         Insert: {
           aisToken?: string | null
           ceacAppId?: string | null
+          confirmed?: boolean | null
           id: string
         }
         Update: {
           aisToken?: string | null
           ceacAppId?: string | null
+          confirmed?: boolean | null
           id?: string
         }
         Relationships: []

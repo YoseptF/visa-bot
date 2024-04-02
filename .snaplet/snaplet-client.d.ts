@@ -57,6 +57,7 @@ type Override = {
       id?: string;
       aisToken?: string;
       ceacAppId?: string;
+      confirmed?: string;
     };
   }
   _http_response?: {

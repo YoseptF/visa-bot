@@ -20,7 +20,9 @@
     "db/push": "dotenv -- cross-var bun supabase db push -p %SUPABASE_DB_PASSWORD%",
     "types/generate/server": "bunx snaplet generate && bunx tsx ./scripts/createTsFromDB.ts",
     "types/generate/local": "bunx snaplet generate && bunx tsx ./scripts/createTsFromDB.ts local",
-    "graphql/generate": "graphql-codegen"
+    "graphql/generate": "graphql-codegen",
+    "visa_me_baby_1": "bun run ./app/.server/puppeteer/ceac.state/index.ts",
+    "visa_me_baby_2": "bun run ./app/.server/puppeteer/ais.usvisa/index.ts"
   },
   "dependencies": {
     "@remix-run/node": "^2.8.1",
