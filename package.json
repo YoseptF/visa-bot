@@ -22,8 +22,9 @@
     "types/generate/local": "bunx snaplet generate && bunx tsx ./scripts/createTsFromDB.ts local",
     "graphql/generate": "graphql-codegen",
     "microservice/ceac": "bun run ./app/.server/puppeteer/scripts/ceac.microservice.ts",
+    "microservice/ais": "bun run ./app/.server/puppeteer/scripts/ais.microservice.ts",
     "script/ceac": "bun run ./app/.server/puppeteer/ceac.state/index.ts test --debug",
-    "script/dates": "bun run ./app/.server/puppeteer/ais.usvisa/index.ts"
+    "script/ais": "bun run ./app/.server/puppeteer/ais.usvisa/index.ts 10 --debug"
   },
   "dependencies": {
     "@remix-run/node": "^2.8.1",
