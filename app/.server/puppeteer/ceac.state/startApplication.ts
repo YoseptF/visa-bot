@@ -9,8 +9,12 @@ const startApplication = async (page: Page, ceacAppId?: string | null) => {
 
   locationSelect.select('MEX');
 
+  let maxTries = 5;
+
   const solveCaptchaAndSubmit = async () => {
     try {
+      await page.waitForNavigation();
+
       await page.waitForNetworkIdle({ idleTime: 300 });
 
       const captchaImageId = 'c_default_ctl00_sitecontentplaceholder_uclocation_identifycaptcha1_defaultcaptcha_CaptchaImage'
@@ -35,7 +39,7 @@ const startApplication = async (page: Page, ceacAppId?: string | null) => {
         await page.waitForSelector(successSelector, { timeout: 2000 });
         return true;
       } catch (error) {
-        console.error('haven\'t found success selector, retrying captcha');
+        console.error('haven\'t found success selector, retrying captcha', 'try: ', maxTries);
         return false;
       }
 
@@ -49,6 +53,9 @@ const startApplication = async (page: Page, ceacAppId?: string | null) => {
 
   do {
     agreeSelector = await solveCaptchaAndSubmit();
+
+    if (maxTries-- <= 0) throw new Error('Max tries reached')
+
   } while (!agreeSelector);
 }
 

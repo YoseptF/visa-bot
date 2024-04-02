@@ -52,6 +52,11 @@ const browser = await puppeteer.launch({
     width: 800,
     height: 800,
   },
+  // args: [
+  //   '--no-sandbox',
+  //   '--disable-setuid-sandbox',
+  //   '--proxy-server=51.145.176.250:8080',
+  // ],
 });
 
 // open new page
