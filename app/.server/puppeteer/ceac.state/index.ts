@@ -1,6 +1,7 @@
 import { CeacStep } from './utils';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import addressPhone from './addressPhone';
+import chalk from 'chalk';
 import personalInfo from './personalInfo';
 import personalInfo2 from './personalInfo2';
 import pptVisa from './pptVisa';
@@ -24,18 +25,32 @@ import workEducation1 from './workEducation1';
 import workEducation2 from './workEducation2';
 import workEducation3 from './workEducation3';
 
-puppeteer.use(StealthPlugin())
+// get args from shell
+const [, , accountUuid] = process.argv
 
-const TIMEOUT = 5000
+// check for flag --debug
+const debug = process.argv.includes('--debug')
+
+if (debug) {
+  const { data: debugEntry } = await supabase.from('ServerSettings').select().eq('id', 'test').single()
+
+  if (debugEntry) await supabase.from('ServerSettings').delete().eq('id', 'test')
+}
+
+console.debug(chalk.green('Creating account:', accountUuid))
+
+if (!accountUuid) throw new Error('Account uuid not found')
+
+puppeteer.use(StealthPlugin())
 
 // open new browser
 const browser = await puppeteer.launch({
-  headless: false,
-  // slowMo: 50,
+  headless: debug ? false : true,
+  slowMo: debug ? 10 : 0,
   // window size
   defaultViewport: {
-    width: 700,
-    height: 400,
+    width: 800,
+    height: 800,
   },
 });
 
@@ -50,7 +65,7 @@ page.on('dialog', async dialog => {
   await dialog.accept();
 });
 
-const { data } = await supabase.from('ServerSettings').select('ceacAppId').eq('id', '1').single()
+const { data } = await supabase.from('ServerSettings').select('ceacAppId').eq('id', accountUuid).single()
 
 await startApplication(page, data?.ceacAppId);
 
@@ -87,9 +102,20 @@ const steps = [
 ].slice(CeacStep[node])
 
 for (const step of steps) {
+  console.debug(chalk.green(`Starting step ${step.name}`))
   await step(page)
+  console.debug(chalk.green.bold(`Finished step ${step.name}`))
 }
 
-await supabase.from('ServerSettings').update({ confirmed: true }).eq('id', '1')
+const [, , id] = process.argv
 
-await new Promise((resolve) => setTimeout(resolve, TIMEOUT));
+const { data: newEntry } = await supabase.from('ServerSettings').update({ confirmed: true }).eq('id', id).select().single()
+
+console.debug(chalk.green('Finished application:'))
+console.debug(chalk.bold(newEntry?.ceacAppId))
+
+
+await browser.close();
+
+// return newEntry?.ceacAppId
+

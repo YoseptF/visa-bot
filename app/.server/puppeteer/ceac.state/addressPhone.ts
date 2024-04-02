@@ -6,7 +6,9 @@ import supabase from "~/.server/db";
 const addressPhone = async (page: Page) => {
   await page.waitForNetworkIdle({ idleTime: 300 });
   
-  const { data } = await supabase.from('ServerSettings').select('ceacAppId').single();
+  const [,,accountUuid] = process.argv
+  
+  const { data } = await supabase.from('ServerSettings').select('ceacAppId').eq('id', accountUuid).single()
   
   if (!data?.ceacAppId) throw new Error('App ID not found');
   

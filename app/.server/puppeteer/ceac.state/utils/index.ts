@@ -11,16 +11,18 @@ export const saveApplicationId = async (page: Page) => {
 
   if (!ceacAppId) throw new Error('App ID not found');
 
-  const { data: ServerSettings, error } = await supabase.from('ServerSettings').upsert({ ceacAppId, id: '1' }).select()
-  
+  const [, , id] = process.argv
+
+  const { data: ServerSettings, error } = await supabase.from('ServerSettings').upsert({ ceacAppId, id }).select()
+
   if (error) throw new Error(error.message);
   if (!ServerSettings) throw new Error('App ID not saved');
 }
 
-export const checkNoOnEverything = async (ids: string[],page: Page) => {
+export const checkNoOnEverything = async (ids: string[], page: Page) => {
   for (const id of ids) {
     await page.waitForNetworkIdle({ idleTime: 300 });
-    const no = await waitForSelector(`input#${id}`,page);
+    const no = await waitForSelector(`input#${id}`, page);
     await checkIfUnchecked(no);
   }
 }

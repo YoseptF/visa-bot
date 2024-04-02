@@ -31,7 +31,13 @@ const startApplication = async (page: Page, ceacAppId?: string | null) => {
 
       const successSelector = ceacAppId ? 'span#ctl00_SiteContentPlaceHolder_Label5' : 'span#ctl00_SiteContentPlaceHolder_lblBanner';
 
-      return Boolean(await page.waitForSelector(successSelector, { timeout: 2000 }));
+      try {
+        await page.waitForSelector(successSelector, { timeout: 2000 });
+        return true;
+      } catch (error) {
+        console.error('haven\'t found success selector, retrying captcha');
+        return false;
+      }
 
     } catch (error) {
       console.error(error);
