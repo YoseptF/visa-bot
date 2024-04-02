@@ -35,7 +35,7 @@ interface Table_public_customer {
 }
 interface Table_public_server_settings {
   id: string;
-  aisToken: string;
+  aisToken: string | null;
   ceacAppId: string | null;
 }
 interface Table_net_http_response {

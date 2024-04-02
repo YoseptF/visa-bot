@@ -1,8 +1,28 @@
+import { CeacStep } from './utils';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
-import firstPage from './firstPage';
+import addressPhone from './addressPhone';
+import personalInfo from './personalInfo';
+import personalInfo2 from './personalInfo2';
+import pptVisa from './pptVisa';
+import previousUSTravel from './previousUSTravel';
 import puppeteer from "puppeteer-extra";
-import secondPage from './secondPage';
-import { waitForSelector } from '../utils';
+import relatives from './relatives';
+import retrieveApplication from './retrieveApplication';
+import securityQuestion from './securityQuestion';
+import securityandBackground1 from './securityandBackground1';
+import securityandBackground2 from './securityandBackground2';
+import securityandBackground3 from './securityandBackground3';
+import securityandBackground4 from './securityandBackground4';
+import securityandBackground5 from './securityandBackground5';
+import signAndAccept from './signAndAccept';
+import startApplication from './startApplication';
+import supabase from '../../db'
+import travel from './travel';
+import travelCompanions from './travelCompanions';
+import uSContact from './uSContact';
+import workEducation1 from './workEducation1';
+import workEducation2 from './workEducation2';
+import workEducation3 from './workEducation3';
 
 puppeteer.use(StealthPlugin())
 
@@ -24,68 +44,50 @@ const page = await browser.newPage();
 // go to visa site
 await page.goto("https://ceac.state.gov/genniv/");
 
-await firstPage(page);
+page.on('dialog', async dialog => {
+  console.debug(dialog.message());
 
-await secondPage(page);
+  await dialog.accept();
+});
 
-const appIdSpan = await waitForSelector('span#ctl00_lblAppID', page);
+const { data } = await supabase.from('ServerSettings').select('ceacAppId').eq('id', '1').single()
 
-const surnames = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME', page);
+await startApplication(page, data?.ceacAppId);
 
-await surnames.type('surname');
+if (data?.ceacAppId) await retrieveApplication(data.ceacAppId, page);
 
-const givenNames = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_GIVEN_NAME', page);
+await page.waitForNetworkIdle({ idleTime: 300 });
 
-await givenNames.type('name');
+// get node query parameter
+const url = new URL(page.url())
+const node = url.searchParams.get('node') as keyof typeof CeacStep | null
 
-const noFullName = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_FULL_NAME_NATIVE_NA', page);
+if (!node) throw new Error('Node not found')
 
-await noFullName.click();
+const steps = [
+  securityQuestion,
+  personalInfo,
+  personalInfo2,
+  travel,
+  travelCompanions,
+  previousUSTravel,
+  addressPhone,
+  pptVisa,
+  uSContact,
+  relatives,
+  workEducation1,
+  workEducation2,
+  workEducation3,
+  securityandBackground1,
+  securityandBackground2,
+  securityandBackground3,
+  securityandBackground4,
+  securityandBackground5,
+  signAndAccept,
+].slice(CeacStep[node])
 
-const noOtherNames = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_1', page);
-
-await noOtherNames.click();
-
-const noTelecode = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_1', page);
-
-await noTelecode.click();
-
-const sexSelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_GENDER', page);
-
-await sexSelect.select('M');
-
-const maritakStatusSelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_MARITAL_STATUS', page);
-
-await maritakStatusSelect.select('S');
-
-const birthDaySelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlDOBDay', page);
-
-await birthDaySelect.select('01');
-
-const birthMonthSelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlDOBMonth', page);
-
-await birthMonthSelect.select('JAN');
-
-const birthYearInput = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxDOBYear', page);
-
-await birthYearInput.type('1990', { delay: 100 });
-
-const cityInput = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_CITY', page);
-
-await cityInput.type('city');
-
-const stateInput = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE', page);
-
-await stateInput.type('state');
-
-const countrySelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_POB_CNTRY', page);
-
-await countrySelect.select('DF');
-
-await page.waitForNetworkIdle()
-
-const nextButton = await waitForSelector('input#ctl00_SiteContentPlaceHolder_UpdateButton3', page);
-
-await nextButton.click();
+for (const step of steps) {
+  await step(page)
+}
 
 await new Promise((resolve) => setTimeout(resolve, TIMEOUT));

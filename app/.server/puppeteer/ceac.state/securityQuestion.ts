@@ -1,14 +1,15 @@
-import { Page } from "puppeteer";
-import { waitForSelector } from "../utils";
+import { typeIfEmpty, waitForSelector } from "../utils";
 
-const secondPage = async (page: Page) => {
+import { Page } from "puppeteer";
+
+const securityQuestion = async (page: Page) => {
   const agreeCheckbox = await waitForSelector('input#ctl00_SiteContentPlaceHolder_chkbxPrivacyAct', page)
 
   await agreeCheckbox.click();
 
   const securityQuestion = await waitForSelector('input#ctl00_SiteContentPlaceHolder_txtAnswer:not([disabled])', page);
 
-  await securityQuestion.type('same_answer');
+  await typeIfEmpty(securityQuestion, 'same_answer');
 
   const submitButton = await waitForSelector('input#ctl00_SiteContentPlaceHolder_btnContinue', page);
 
@@ -17,4 +18,4 @@ const secondPage = async (page: Page) => {
   await page.waitForNetworkIdle();
 }
 
-export default secondPage;
+export default securityQuestion;

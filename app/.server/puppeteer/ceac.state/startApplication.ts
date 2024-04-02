@@ -1,9 +1,9 @@
-import { getImageAsBase64, waitForSelector } from "../utils";
+import { typeIfEmpty, waitForSelector } from "../utils";
 
 import { Page } from "puppeteer";
-import { createTask } from "~/.server/lib/capsolver";
+import { solveCaptcha } from "./utils";
 
-const firstPage = async (page: Page) => {
+const startApplication = async (page: Page, ceacAppId?: string | null) => {
   const locationSelect = await waitForSelector('select#ctl00_SiteContentPlaceHolder_ucLocation_ddlLocation', page);
 
 
@@ -15,23 +15,23 @@ const firstPage = async (page: Page) => {
 
       const captchaImageId = 'c_default_ctl00_sitecontentplaceholder_uclocation_identifycaptcha1_defaultcaptcha_CaptchaImage'
 
-      const base64Image = await getImageAsBase64(captchaImageId, page);
-
-      if (!base64Image) throw new Error('Failed to get base64 image');
-
-      const captchaSolution = await createTask(base64Image);
+      const captchaSolution = await solveCaptcha(captchaImageId, page);
 
       const captchaInput = await waitForSelector('input#ctl00_SiteContentPlaceHolder_ucLocation_IdentifyCaptcha1_txtCodeTextBox', page);
 
-      await captchaInput.type(captchaSolution);
+      await typeIfEmpty(captchaInput, captchaSolution);
 
-      const submitButton = await waitForSelector('.category.create a', page);
+      const submitButtonClass = ceacAppId ? '.category.retrieve a' : '.category.create a';
+
+      const submitButton = await waitForSelector(submitButtonClass, page);
 
       await submitButton.click();
 
       await page.waitForNetworkIdle({ idleTime: 300 });
 
-      return Boolean(await page.waitForSelector('input#ctl00_SiteContentPlaceHolder_chkbxPrivacyAct', { timeout: 2000 }));
+      const successSelector = ceacAppId ? 'span#ctl00_SiteContentPlaceHolder_Label5' : 'span#ctl00_SiteContentPlaceHolder_lblBanner';
+
+      return Boolean(await page.waitForSelector(successSelector, { timeout: 2000 }));
 
     } catch (error) {
       console.error(error);
@@ -46,4 +46,4 @@ const firstPage = async (page: Page) => {
   } while (!agreeSelector);
 }
 
-export default firstPage;
+export default startApplication;

@@ -132,17 +132,17 @@ export type Database = {
       }
       ServerSettings: {
         Row: {
-          aisToken: string
+          aisToken: string | null
           ceacAppId: string | null
           id: string
         }
         Insert: {
-          aisToken: string
+          aisToken?: string | null
           ceacAppId?: string | null
           id: string
         }
         Update: {
-          aisToken?: string
+          aisToken?: string | null
           ceacAppId?: string | null
           id?: string
         }

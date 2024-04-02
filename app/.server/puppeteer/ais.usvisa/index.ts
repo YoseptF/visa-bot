@@ -1,6 +1,7 @@
+import { checkIfUnchecked, typeIfEmpty, waitForSelector } from '../utils';
+
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import puppeteer from "puppeteer-extra";
-import { waitForSelector } from '../utils';
 
 puppeteer.use(StealthPlugin())
 
@@ -35,9 +36,9 @@ const signInButton = await waitForSelector('input[value="Sign In"]', page);
 const policyCheckBox = await waitForSelector('input#policy_confirmed', page);
 
 
-await emailInput.type("testo@yosept.me");
-await passwordInput.type("1_Password");
-await policyCheckBox.click();
+await typeIfEmpty(emailInput, "testo@yosept.me");
+await typeIfEmpty(passwordInput, "1_Password");
+await checkIfUnchecked(policyCheckBox);
 await signInButton.click();
 
 await new Promise((resolve) => setTimeout(resolve, TIMEOUT));

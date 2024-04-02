@@ -30,7 +30,13 @@ const getImageAsBase64Internal = (imageId: string) => {
   }
 }
 
-export const getImageAsBase64 = async (imageId: string, page: Page) => await page.evaluate(getImageAsBase64Internal, imageId);
+export const getImageAsBase64 = async (imageId: string, page: Page) => {
+  const image = await page.evaluate(getImageAsBase64Internal, imageId)
+
+  if (!image) throw new Error("Failed to get image");
+
+  return image;
+}
 
 export const waitForSelector = async <Selector extends string>(selector: Selector, page: Page) => {
   const element = await page.waitForSelector(selector);
@@ -38,4 +44,17 @@ export const waitForSelector = async <Selector extends string>(selector: Selecto
   if (!element) throw new Error("Element not found: " + selector);
 
   return element;
+}
+
+export const typeIfEmpty = async <Element extends ElementHandle<HTMLInputElement | HTMLTextAreaElement>>(element: Element, text: string) => {
+  const value = await element.evaluate((el) => el.value);
+
+  if (!value) await element.type(text);
+}
+
+export const checkIfUnchecked = async <Element extends ElementHandle<HTMLInputElement>>(element: Element) => {
+  
+  const checked = await element.evaluate((el) => el.checked);
+
+  if (!checked) await element.click();
 }
