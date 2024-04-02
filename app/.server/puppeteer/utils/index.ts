@@ -56,5 +56,5 @@ export const checkIfUnchecked = async <Element extends ElementHandle<HTMLInputEl
   
   const checked = await element.evaluate((el) => el.checked);
 
-  if (!checked) await element.click();
+  if (!checked) await element.evaluate((el) => el.click());
 }

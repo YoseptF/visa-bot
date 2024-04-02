@@ -19,6 +19,7 @@ export const saveApplicationId = async (page: Page) => {
 
 export const checkNoOnEverything = async (ids: string[],page: Page) => {
   for (const id of ids) {
+    await page.waitForNetworkIdle({ idleTime: 300 });
     const no = await waitForSelector(`input#${id}`,page);
     await checkIfUnchecked(no);
   }

@@ -1,13 +1,16 @@
-import { checkIfUnchecked, waitForSelector } from "../utils";
+import { Page } from "puppeteer";
+import { checkNoOnEverything } from "./utils";
+import { waitForSelector } from "../utils";
 
 const workEducation2 = async (page: Page) => {
   await page.waitForNetworkIdle({ idleTime: 300 });
 
-  const notPreviouslyEmployed = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_rblPreviouslyEmployed_1', page);
-  await checkIfUnchecked(notPreviouslyEmployed);
+  await checkNoOnEverything([
+    'ctl00_SiteContentPlaceHolder_FormView1_rblPreviouslyEmployed_1',
+    'ctl00_SiteContentPlaceHolder_FormView1_rblOtherEduc_1',
+  ], page)
 
-  const notPreviouslySchooled = await waitForSelector('input#ctl00_SiteContentPlaceHolder_FormView1_rblOtherEduc_1', page);
-  await checkIfUnchecked(notPreviouslySchooled);
+  await page.waitForNetworkIdle({ idleTime: 300 });
 
   const nextButton = await waitForSelector('input#ctl00_SiteContentPlaceHolder_UpdateButton3', page);
   await nextButton.click();
