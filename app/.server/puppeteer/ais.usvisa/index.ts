@@ -91,7 +91,7 @@ for await (const _ of Array(Number(times)).keys()) {
 
   console.table(allDates);
 
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
   await page.reload();
 }
 

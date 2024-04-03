@@ -12,7 +12,7 @@ const createAccount = async () => {
   const accountUuid = uuid(Math.random().toString(), UUID_SALT)
   try {
 
-    const shellResponse = await $`bun .\\app\\.server\\puppeteer\\ceac.state\\index.ts ${accountUuid}`
+    const shellResponse = await $`bun ./app/.server/puppeteer/ceac.state/index.ts ${accountUuid}`
 
     const lines = shellResponse.text().split('\n').filter(Boolean)
     const lastLine = lines[lines.length - 1]
@@ -46,7 +46,6 @@ const main = async () => {
 
   await new Promise(resolve => setTimeout(resolve, MAIN_INTERVAL))
 
-  // get hours, minutes and seconds of uptime
   const hours = Math.floor(timesMain * MAIN_INTERVAL / 1000 / 60 / 60)
   const minutes = Math.floor(timesMain * MAIN_INTERVAL / 1000 / 60) % 60
   const seconds = Math.floor(timesMain * MAIN_INTERVAL / 1000) % 60
